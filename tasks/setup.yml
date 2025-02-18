@@ -1,0 +1,68 @@
+---
+# tasks file for ansible-role-docker-container-wgaccess
+
+- name: docker_container - {{ docker_container_wgaccess_volume_dir }}
+  ansible.builtin.file:
+    path: "{{ docker_container_wgaccess_volume_dir }}"
+    state: directory
+    owner: "root"
+    group: "root"
+    mode: "0755"
+
+- name: docker_container {{ docker_container_wgaccess_name }} - config.yaml
+  ansible.builtin.template:
+    src: "{{ docker_container_wgaccess_config_template }}"
+    dest: "{{ docker_container_wgaccess_volume_dir }}/config.yaml"
+
+- name: docker_image pull {{ docker_image_wgaccess_name }}
+  community.docker.docker_image:
+    name: '{{ docker_image_wgaccess_name }}'
+    source: pull
+    # Select platform for pulling. If not specified, will pull whatever docker prefers.
+    pull:
+      platform: amd64
+  when: 
+    - docker_image_wgaccess_pull
+
+- name: docker_network {{ docker_container_wgaccess_name }}
+  community.docker.docker_network:
+    name: "{{ docker_network_wgaccess_name }}"
+    driver: "{{ docker_network_wgaccess_driver | default('bridge') }}"
+    attachable: "{{ docker_network_wgaccess_attachable | default(true) }}"
+    enable_ipv6: "{{ docker_network_wgaccess_enable_ipv6 | default(false) }}"
+    internal: "{{ docker_network_wgaccess_internal | default(false) }}"
+    state: present
+
+
+- name: docker_container {{ docker_container_wgaccess_name }}
+  community.docker.docker_container:
+    name: "{{ docker_container_wgaccess_name }}"
+    capabilities: "{{ docker_container_wgaccess_capabilities | default(omit) }}"
+    devices: "{{ docker_container_wgaccess_devices | default(omit) }}"
+    comparisons: "{{ docker_container_wgaccess_comparisons }}"
+    etc_hosts: "{{ docker_container_wgaccess_etc_hosts | default(omit) }}"
+    image: "{{ docker_container_wgaccess_image }}"
+    state: "{{ docker_container_wgaccess_state | default('started') }}"
+    recreate: "{{ docker_container_wgaccess_recreate | default(false) }}"
+    restart: "{{ docker_container_wgaccess_restart | default(false) }}"
+    restart_policy: "{{ docker_container_wgaccess_restart_policy | default('always') }}"
+    container_default_behavior: no_defaults
+    auto_remove: "{{ docker_container_wgaccess_auto_remove | default(false) }}"
+    detach: "{{ docker_container_wgaccess_detach | default(true) }}"
+    init: "{{ docker_container_wgaccess_init | default(false) }}"
+    interactive: "{{ docker_container_wgaccess_interactive | default(false) }}"
+    keep_volumes: "{{ docker_container_wgaccess_keep_volumes | default(true) }}"
+    memory: "{{ docker_container_wgaccess_memory | default('0') }}"
+    paused: "{{ docker_container_wgaccess_paused | default(false) }}"
+    privileged: "{{ docker_container_wgaccess_privileged | default(false) }}"
+    read_only: "{{ docker_container_wgaccess_read_only | default(false) }}"
+    tty: "{{ docker_container_wgaccess_tty | default(false) }}"
+    env_file: "{{ docker_container_wgaccess_env_file | default(omit) }}"
+    env: "{{ docker_container_wgaccess_env | default(omit) }}"
+    volumes: "{{ docker_container_wgaccess_volumes | default(omit) }}"
+    labels: "{{ docker_container_wgaccess_labels | default(omit) }}"
+    networks_cli_compatible: "{{ docker_container_wgaccess_networks_cli_compatible | default(true) }}"
+    network_mode: "{{ docker_network_wgaccess_name }}"
+    pull: "{{ docker_container_wgaccess_pull | default(false) }}"
+    networks: "{{ docker_container_wgaccess_networks }}"
+    published_ports: "{{ docker_container_wgaccess_ports | default(omit) }}"

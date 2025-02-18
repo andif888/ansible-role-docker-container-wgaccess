@@ -1,0 +1,225 @@
+---
+# defaults file for ansible-role-docker-container-wgaccess
+
+# @var docker_container_wgaccess_admin_username:description: The admin account username
+docker_container_wgaccess_admin_username: "admin"
+
+# @var docker_container_wgaccess_admin_username:description: The admin account password
+docker_container_wgaccess_admin_password: "SomeSecret...3...33"
+
+# @var docker_container_wgaccess_privatekey:description: >
+# Wireguard private key.
+# wg genkey
+# @end
+docker_container_wgaccess_privatekey: "dsfkjhkheuhHKJHIHUHKjduehHHUGzuezud="
+
+# @var docker_container_wgaccess_config_template:description: >
+# Path to config template file
+# https://www.freie-netze.org/wg-access-server/2-configuration/
+# @end
+docker_container_wgaccess_config_template: "templates/config.yaml.j2"
+
+# ------------
+# Docker image
+# ------------
+
+# @var docker_image_wgaccess_name:description: Repository path and tag for the container image.
+docker_image_wgaccess_name: "ghcr.io/freifunkmuc/wg-access-server:master"
+
+# @var docker_image_wgaccess_pull:description: Indicate to always pull the docker image.
+docker_image_wgaccess_pull: false
+
+# ----------------
+# Docker container
+# ----------------
+
+# @var docker_container_wgaccess_name:description: Name for the container
+docker_container_wgaccess_name: "wgaccess"
+
+# @var docker_container_wgaccess_image:description: >
+# Repository path and tag used to create the container. 
+# If an image is not found or pull is true, the image will be pulled from the registry. 
+# If no tag is included, latest will be used.
+# @end
+docker_container_wgaccess_image: "{{ docker_image_wgaccess_name }}"
+
+# @var docker_container_wgaccess_volume_dir:description: >
+# Volume mount host directory, where Treafik config files are stored.
+# @end
+docker_container_wgaccess_volume_dir: "{{ docker_container__base__volume_dir }}/{{ docker_container_wgaccess_name }}"
+
+# @var docker_container_wgaccess_capabilities:description: >
+# List of capabilities to add to the container.
+# @end
+docker_container_wgaccess_capabilities: ["NET_ADMIN"]
+
+# @var docker_container_wgaccess_devices:description: >
+# List of host device bindings to add to the container.
+# @end
+docker_container_wgaccess_devices: ["/dev/net/tun:/dev/net/tun"]
+
+# @var docker_container_wgaccess_etc_hosts:description: >
+# Dict of host-to-IP mappings, where each host name is a 
+# key in the dictionary. Each host name will be added to 
+# the container’s /etc/hosts file.
+# @end
+docker_container_wgaccess_etc_hosts: {}
+
+# @var docker_container_wgaccess_env:description: >
+# Dictionery of key,value pairs for docker 
+# environment variables to configure wgaccess. 
+# 
+# Example:
+#
+# ```yaml
+#
+# docker_container_wgaccess_env:
+#
+#   wgaccess__mailer__ENABLED: "false"
+#
+# ```
+# @end
+docker_container_wgaccess_env: {}
+
+# @var docker_container_wgaccess_volumes:description: >
+# List of volumes to mount within the container.
+# @end
+docker_container_wgaccess_volumes:
+  - "{{ docker_container_wgaccess_volume_dir }}/data:/data"
+  - "{{ docker_container_wgaccess_volume_dir }}/config.yaml:/config.yaml"
+
+# @var docker_container_wgaccess_labels:description: >
+# Dictionary of key value pairs for container labels. 
+# 
+# Example:
+#
+# ```yaml
+# 
+# docker_container_wgaccess_labels:
+#
+#   traefik.enable: "true"
+# 
+# ```
+# 
+# @end
+docker_container_wgaccess_labels: {}
+
+# @var docker_container_wgaccess_networks:description: >
+# List of networks the container belongs to.
+# @end
+docker_container_wgaccess_networks:
+  - name: "{{ docker_network_wgaccess_name }}"
+
+# @var docker_container_wgaccess_ports:description: >
+# List of ports to publish from the container to the host.
+# @end
+docker_container_wgaccess_ports:
+  - "8000:8000/tcp"
+  - "51820:51820/udp"
+
+# @var docker_container_wgaccess_comparisons:description: >
+# Allows to specify how properties of existing containers are compared with module options 
+# to decide whether the container should be recreated / updated or not.
+# @end
+docker_container_wgaccess_comparisons:
+  image: strict
+  env: strict
+  volumes: strict
+
+# docker_container_wgaccess_auto_remove: no 
+# docker_container_wgaccess_detach: yes 
+# docker_container_wgaccess_env_file: "{{ docker_container_wgaccess_volume_dir }}/.env"
+# docker_container_wgaccess_init: no 
+# docker_container_wgaccess_interactive: no 
+# docker_container_wgaccess_keep_volumes: yes
+# docker_container_wgaccess_memory: "0"
+# docker_container_wgaccess_paused: no 
+# docker_container_wgaccess_privileged: no 
+# docker_container_wgaccess_pull: no
+# docker_container_wgaccess_read_only: no 
+# docker_container_wgaccess_recreate: no
+# docker_container_wgaccess_restart: no
+# docker_container_wgaccess_restart_policy: always 
+# docker_container_wgaccess_state: started
+# docker_container_wgaccess_tty: no 
+# docker_container_wgaccess_networks_cli_compatible: yes 
+
+# --------------
+# Docker network
+# --------------
+
+# @var docker_network_wgaccess_name:description: >
+# Name of the docker network created for wgaccess.
+# @end
+docker_network_wgaccess_name: "{{ docker_container_wgaccess_name }}_backend"
+# docker_network_wgaccess_driver: bridge
+# docker_network_wgaccess_attachable: yes
+# docker_network_wgaccess_enable_ipv6: no
+# docker_network_wgaccess_internal: no
+
+# -------------
+# Restic Backup
+# -------------
+# @var docker_container_wgaccess_restic_enable:description: >
+# Enable restic backup for the container's mounted volumes.
+# @end
+docker_container_wgaccess_restic_enable: false
+
+# @var docker_container_wgaccess_restic_s3_endpoint:description: >
+# Minio S3 endpoint for restic backup storage.
+#
+# Example: 
+# 
+# ```yaml
+#
+# docker_container__base__restic_s3_endpoint: "https://minio.{{ dns_domain }}"
+#
+# docker_container_wgaccess_restic_s3_endpoint: "{{ docker_container__base__restic_s3_endpoint }}"
+#
+# ```
+#
+# @end
+docker_container_wgaccess_restic_s3_endpoint: "{{ docker_container__base__restic_s3_endpoint }}"
+
+# @var docker_container_wgaccess_restic_s3_bucket_name:description: >
+# Minio S3 bucket name for restic backup storage.
+# @end
+docker_container_wgaccess_restic_s3_bucket_name: "restic-{{ docker_container_wgaccess_name }}"
+
+# @var docker_container_wgaccess_restic_s3_repo:description: >
+# Minio S3 repo URL for restic backup storage.
+# @end
+docker_container_wgaccess_restic_s3_repo: "s3:{{ docker_container_wgaccess_restic_s3_endpoint }}/{{ docker_container_wgaccess_restic_s3_bucket_name }}"
+
+# @var docker_container_wgaccess_restic_s3_repo_password:description: >
+# Minio S3 repo password for restic backup storage.
+# @end
+docker_container_wgaccess_restic_s3_repo_password: "{{ docker_container__base__restic_s3_repo_password }}"
+
+# @var docker_container_wgaccess_restic_s3_repo_access_key:description: >
+# Minio S3 repo access key for restic backup storage.
+# @end
+docker_container_wgaccess_restic_s3_repo_access_key: "{{ docker_container__base__restic_s3_repo_access_key }}"
+# @var docker_container_wgaccess_restic_s3_repo_secret_key:description: >
+# Minio S3 repo secret key for restic backup storage.
+# @end
+docker_container_wgaccess_restic_s3_repo_secret_key: "{{ docker_container__base__restic_s3_repo_secret_key }}"
+
+# docker_container_wgaccess_restic_s3_seed_repo: "s3:{{ docker_container__base__restic_s3_seed_endpoint }}/{{ docker_container_wgaccess_restic_s3_bucket_name }}"
+# docker_container_wgaccess_restic_s3_seed_repo_password: "{{ docker_container__base__restic_s3_repo_password }}"
+
+# @var docker_container_wgaccess_restic_retention:description: >
+# Retention settions for `restic forget` after the `restic backup`.
+# @end
+docker_container_wgaccess_restic_retention:
+  keep_last: 1
+  # keep_hourly: 1
+  keep_daily: 7
+  keep_weekly: 4
+  # keep_monthly: 6
+  # keep_yearly
+
+# @var docker_container_wgaccess_restic_tag:description: >
+# Tag for the `restic backup` command
+# @end
+docker_container_wgaccess_restic_tag: "{{ docker_container_wgaccess_name }}"

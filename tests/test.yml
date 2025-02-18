@@ -1,0 +1,63 @@
+---
+- hosts: localhost
+  remote_user: root
+  vars:
+    docker_container__base__dns_domain: "acme.org"
+    docker_container_wgaccess_mailer_host: "mail.{{ docker_container__base__dns_domain }}"
+    docker_container_wgaccess_mailer_from: "no-reply@{{ docker_container__base__dns_domain }}"
+    docker_container_wgaccess_mailer_username: "no-reply@{{ docker_container__base__dns_domain }}"
+    docker_container_wgaccess_mailer_password: "somepassword"
+
+    docker_network_traefik_name: "traefik_proxy_net"
+
+    docker_container_wgaccess_server_domain: "{{ docker_container_wgaccess_name }}.{{ docker_container__base__dns_domain }}"
+    
+    docker_container_wgaccess_env:
+      APP_NAME: "wgaccess: git"
+      RUN_USER: "git"
+      wgaccess__log__ROOT_PATH: "/data/wgaccess/log"
+      wgaccess__repository__ROOT: "/data/git/repositories"
+      wgaccess__server__DOMAIN: "{{ docker_container_wgaccess_server_domain }}"
+      wgaccess__server__ROOT_URL: "https://{{ docker_container_wgaccess_server_domain }}"
+      wgaccess__server__HTTP_PORT: "3000"
+      wgaccess__service__DISABLE_REGISTRATION: "true"
+      wgaccess__mailer__ENABLED: "true"
+      wgaccess__mailer__FROM: "{{ docker_container_wgaccess_mailer_from }}"
+      wgaccess__mailer__MAILER_TYPE: "smtp"
+      wgaccess__mailer__HOST: "{{ docker_container_wgaccess_mailer_host }}"
+      wgaccess__mailer__IS_TLS: "true"
+      wgaccess__mailer__USER: "{{ docker_container_wgaccess_mailer_username }}"
+      wgaccess__mailer__PASSWD: "{{ docker_container_wgaccess_mailer_password }}"
+      wgaccess__database__DB_TYPE: "sqlite3"
+      wgaccess__database__PATH: "/data/wgaccess/wgaccess.db"
+      wgaccess__webhook__SKIP_TLS_VERIFY: "true"
+      wgaccess__webhook__ALLOWED_HOST_LIST: "*"
+
+    docker_container_wgaccess_labels:
+      traefik.enable: "true"
+      traefik.http.routers.wgaccess.rule: "Host(`{{ docker_container_wgaccess_server_domain }}`)"
+      traefik.http.routers.wgaccess.entrypoints: http
+      traefik.http.routers.wgaccess.service: wgaccess
+      #traefik.http.routers.wgaccess.middlewares: https_redirect_permanent@file
+      # HTTPS
+      traefik.http.routers.wgaccess_ssl.rule: "Host(`{{ docker_container_wgaccess_server_domain }}`)"
+      traefik.http.routers.wgaccess_ssl.entrypoints: https
+      traefik.http.routers.wgaccess_ssl.service: wgaccess
+      #traefik.http.routers.wgaccess_ssl.tls: "true"
+      # traefik.http.routers.wgaccess_ssl.tls.certResolver: le
+      traefik.http.routers.wgaccess_ssl.tls.options: nosni@file
+      # traefik.http.routers.wgaccess_ssl.middlewares: "hsts@file"
+      # Service
+      traefik.http.services.wgaccess.loadbalancer.server.port: "3000"
+
+    docker_container_wgaccess_volumes:
+      - "{{ docker_container_wgaccess_volume_dir }}/data:/data"
+      - "/etc/timezone:/etc/timezone:ro"
+      - "/etc/localtime:/etc/localtime:ro"
+
+    docker_container_wgaccess_networks:
+      - name: "{{ docker_network_wgaccess_name }}"
+      - name: "{{ docker_network_traefik_name }}"
+
+  roles:
+    - ansible-role-docker-container-wgaccess

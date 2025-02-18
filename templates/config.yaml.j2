@@ -1,0 +1,10 @@
+adminPassword: "{{ docker_container_wgaccess_admin_username }}"
+adminUsername: "{{ docker_container_wgaccess_admin_password }}"
+loglevel: info
+storage: sqlite3:///data/db.sqlite3
+wireguard:
+  privateKey: "{{ docker_container_wgaccess_privatekey }}"
+dns:
+  upstream:
+    - "2001:4860:4860::8888"
+    - "8.8.8.8"
