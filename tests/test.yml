@@ -6,8 +6,6 @@
     docker_container_wgaccess_admin_username: "admin"
     docker_container_wgaccess_admin_password: "SomeSecret...3...33"
     docker_container_wgaccess_privatekey: "dsfkjhkheuhHKJHIHUHKjduehHHUGzuezud="
-
-    docker_network_traefik_name: "traefik_proxy_net"
     
     docker_container_wgaccess_env: {}
 
